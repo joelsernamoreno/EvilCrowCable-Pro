@@ -33,6 +33,7 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 	* Payloads
 4. Firmware
 	* Configuration
+	* Change USB configuration
 	* Keylogger viewlog
 	* Keylogger deletelog
 	* Data exfiltration
@@ -127,6 +128,7 @@ This firmware allows a combination of Hardware Keylogger and BadUSB.
 
 You can configure the Keylogger and BadUSB from the config.h file:
 
+* #define CHANGE_USB_CONFIG (true or false): Set CHANGE_USB_CONFIG true to change Vendor ID, Product ID, Manufacturer and Product.
 * #define PAYLOAD_RUN (true or false): Set PAYLOAD_RUN true to execute the payload included in payload.h. Set PAYLOAD_RUN false to not execute the payload.
 * #define KEYLOGGER (true or false): Set KEYLOGGER true to enable Evil Crow Cable Pro as a Hardware Keylogger. Set KEYLOGGER false to disable Hardware Keylogger.
 * #define EXFIL (true or false): Set EXFIL true to enable Evil Crow Cable Pro to exfiltrate data. Set EXFIL false to disable data exfiltration.
@@ -137,6 +139,16 @@ You can configure the Keylogger and BadUSB from the config.h file:
 * #define FORMATFS (true or false): Set FORMATFS true to format FS.
 
 ![Config](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/config.png)
+
+## Change USB configuration
+
+Evil Crow Cable Pro is configured with a default VID/PID/Manufacturer/Product. You can change the USB configuration. Set CHANGE_USB_CONFIG true to change Vendor ID, Product ID, Manufacturer and Product. (example: Apple keyboard):
+
+![USBConfig](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/usbconfig.png)
+
+If you enable CHANGE_USB_CONFIG to true, Evil Crow Cable Pro turns into an Apple keyboard.
+
+![USBDmesg](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/usb-dmesg.png)
 
 ## Keylogger viewlog
 

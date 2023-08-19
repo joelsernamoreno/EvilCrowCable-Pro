@@ -26,8 +26,6 @@ Adafruit_USBH_Host USBHost;
 // holding device descriptor
 tusb_desc_device_t desc_device;
 
-#define MAX_REPORT  4
-
 static uint8_t mod = 0;
 uint8_t modifiersard=0;
 uint8_t key;
@@ -35,18 +33,16 @@ uint8_t tmp_key;
 int key_layout;
 int key_modifier_layout;
 
-// Keyboard
-#define USE_ANSI_ESCAPE   0
-
-// Each HID idx can has multiple reports
-static struct {
-  uint8_t report_count;
-  tuh_hid_report_info_t report_info[MAX_REPORT];
-} hid_info[CFG_TUH_HID];
-
 void setup() {
   Serial.begin(115200);
   LittleFS.begin();
+
+  if (CHANGE_USB_CONFIG) {
+    TinyUSBDevice.setID(vendor_id, product_id);
+    TinyUSBDevice.setManufacturerDescriptor(manufacturer);
+    TinyUSBDevice.setProductDescriptor(product); 
+  }
+  
   Keyboard.begin();
   delay(1000);
 
