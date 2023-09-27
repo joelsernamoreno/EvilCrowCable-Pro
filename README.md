@@ -21,7 +21,7 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 
 **For sale with KSEC Worldwide (shipping from United Kingdom):**
 
-* Type-C: Coming soon
+* Type-C: https://labs.ksec.co.uk/product/evil-crow-cable-pro-usb-c/
 * Micro-USB: Coming soon
 
 **Summary:**
