@@ -45,6 +45,7 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 	* Weaponize a keyboard
 6. Demo
 	* Install and Use
+	* Bypass interface whitelist
 
 ![EvilCrowCablePro](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/evilcrowcablepro.jpeg)
 
@@ -236,3 +237,9 @@ Evil Crow Cable Pro - Install and Use:
 [![Evil Crow Cable Pro - Install and Use](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/demo.png)](https://www.youtube.com/watch?v=VTjJ4ayRw1Q)
 
 Here the Video: [Demo Video](https://www.youtube.com/watch?v=VTjJ4ayRw1Q)
+
+Evil Crow Cable Pro - Bypass interface whitelist:
+
+[![Evil Crow Cable Pro - Bypass interface whitelist](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/demo2.png)](https://www.youtube.com/watch?v=sc4aZd3XP70)
+
+Here the Video: [Demo Video 2](https://www.youtube.com/watch?v=sc4aZd3XP70)
