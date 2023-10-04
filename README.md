@@ -39,6 +39,7 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 	* Data exfiltration
 	* Data exfiltration viewlog
 	* Data exfiltration deletelog
+	* USB Host Mouse
 	* Format FS
 5. Keylogger
 	* With adapter
@@ -137,6 +138,7 @@ You can configure the Keylogger and BadUSB from the config.h file:
 * #define EXFIL_DELETELOG (true or false): Set EXFIL_DELETELOG true to delete log.
 * #define KEYLOGGER_VIEWLOG (true or false): Set KEYLOGGER_VIEWLOG true to view the keylogger log (serial monitor).
 * #define KEYLOGGER_DELETELOG (true or false): Set KEYLOGGER_DELETELOG true to delete log.
+* #define USBHOST_MOUSE (true or false): Set USBHOST_MOUSE true to enable USB Host Mouse.
 * #define FORMATFS (true or false): Set FORMATFS true to format FS.
 
 ![Config](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/config.png)
@@ -192,6 +194,27 @@ exfilNix("cat /etc/passwd");
 Configure #define EXFIL_DELETELOG true in config.h. Flash the firmware in Evil Crow Cable Pro, open serial monitor and wait 5 seconds. 
 
 ![ExfilDelete](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/exfildeletelog.png)
+
+## USB Host Mouse
+
+Evil Crow Cable Pro can function as a USB Host Mouse.
+
+1. Edit the USBCrowKeyboard.cpp file of the USBCrowKeyboard library and uncomment the following line:
+
+![MouseLibrary](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/mouse-init.png)
+
+2. Configure #define USBHOST_MOUSE true in config.h. **NOTE:** Configure #define KEYLOGGER false. Flash the firmware in Evil Crow Cable Pro
+
+![USBHostMouse](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/mouse-usbhost.png)
+
+3. Additionally, you can use a mouse click to execute the payload:
+
+* Configure PAYLOAD_RUN_CLICK = "NONE"; to not execute the payload
+* Configure PAYLOAD_RUN_CLICK = "MOUSE_BUTTON_LEFT"; to execute the payload with the left mouse click
+* Configure PAYLOAD_RUN_CLICK = "MOUSE_BUTTON_RIGHT"; to execute the payload with the right mouse click
+* Configure PAYLOAD_RUN_CLICK = "MOUSE_BUTTON_MIDDLE"; to execute the payload with the middle mouse click
+
+![MouseConfig](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/mouse-config.png)
 
 ## Format FS
 
