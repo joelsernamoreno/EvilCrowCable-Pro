@@ -39,6 +39,9 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 	* Data exfiltration
 	* Data exfiltration viewlog
 	* Data exfiltration deletelog
+	* Keystroke Reflection
+	* Keystroke Reflection viewlog
+	* Keystroke Reflection deletelog
 	* USB Host Mouse
 	* Format FS
 5. Keylogger
@@ -138,6 +141,9 @@ You can configure the Keylogger and BadUSB from the config.h file:
 * #define EXFIL_DELETELOG (true or false): Set EXFIL_DELETELOG true to delete log.
 * #define KEYLOGGER_VIEWLOG (true or false): Set KEYLOGGER_VIEWLOG true to view the keylogger log (serial monitor).
 * #define KEYLOGGER_DELETELOG (true or false): Set KEYLOGGER_DELETELOG true to delete log.
+* #define KEYSTROKE_REFLECTION (true or false): Set KEYSTROKE_REFLECTION true to Keystroke Reflection attack.
+* #define REFLECTION_VIEWLOG (true or false): Set REFLECTION_VIEWLOG true to view the data exfil log (serial monitor).
+* #define REFLECTION_DELETELOG (true or false): Set REFLECTION_DELETELOG true to delete log.
 * #define USBHOST_MOUSE (true or false): Set USBHOST_MOUSE true to enable USB Host Mouse.
 * #define FORMATFS (true or false): Set FORMATFS true to format FS.
 
@@ -194,6 +200,52 @@ exfilNix("cat /etc/passwd");
 Configure #define EXFIL_DELETELOG true in config.h. Flash the firmware in Evil Crow Cable Pro, open serial monitor and wait 5 seconds. 
 
 ![ExfilDelete](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/exfildeletelog.png)
+
+## Keystroke Reflection
+
+Keystroke Reflection is a new side-channel exfiltration technique developed by Hak5.
+
+**Paper:** https://cdn.shopify.com/s/files/1/0068/2142/files/hak5-whitepaper-keystroke-reflection.pdf?v=1659317977
+
+Evil Crow Cable Pro features a USB HID OUT endpoint which may accept control codes for the purposes of toggling the lock key LED indicators.
+
+By taking advantage of this architecture, the Evil Crow Cable Pro may glean sensitive data by means of Keystroke Reflection, using the lock keys as an exfiltration pathway.
+
+The Keystroke Reflection attack consists of two phases. In the first phase the data of interest, or "loot", is gathered from the target and encoded as lock keystrokes for reflection.
+
+In the second phase, the Evil Crow Cable Pro enters Exfil Mode where it will act as a control code listener on the HID OUT endpoint. Then, the target reflects the encoded lock keystrokes.
+
+Configure Keystroke Reflection in Evil Crow Cable Pro:
+
+1. Edit firmware.ino and uncomment the following line:
+
+![Reflection1](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection1.png)
+
+2. Edit firmware.ino and uncomment the following lines:
+
+![Reflection2](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection2.png)
+
+3. Edit config.h and set KEYSTROKE_REFLECTION to true:
+
+![Reflection3](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection3.png)
+
+4. Edit payload.h and use Reflection:
+
+![Reflection4](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection4.png)
+
+5. Flash the firmware and connect the Evil Crow Cable Pro to a Windows target
+
+## Keystroke Reflection viewlog
+
+Configure #define REFLECTION_VIEWLOG true in config.h. Flash the firmware in Evil Crow Cable Pro, open serial monitor and wait 10 seconds. 
+
+![Reflection5](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection5.png)
+
+## Keystroke Reflection deletelog
+
+Configure #define REFLECTION_DELETELOG true in config.h. Flash the firmware in Evil Crow Cable Pro, open serial monitor and wait 5 seconds.
+
+![Reflection6](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection6.png)
 
 ## USB Host Mouse
 

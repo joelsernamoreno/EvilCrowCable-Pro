@@ -14,6 +14,11 @@ char *product = "Aluminium Keyboard IT USB";
 #define EXFIL false // true or false
 #define KEYLOGGER true // true or false
 
+// KEYSTROKE REFLECTION EXFIL 
+#define KEYSTROKE_REFLECTION false // true or false
+#define REFLECTION_VIEWLOG false // true or false
+#define REFLECTION_DELETELOG false // true or false
+
 // USB HOST MOUSE AND RUN PAYLOAD. Read the USB Host Mouse section in Readme.md to configure this.
 #define USBHOST_MOUSE false // true or false
 String PAYLOAD_RUN_CLICK = "NONE"; // SET NONE, MOUSE_BUTTON_MIDDLE, MOUSE_BUTTON_RIGHT OR MOUSE_BUTTON_LEFT
