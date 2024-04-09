@@ -16,7 +16,7 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 
 **For sale with April Brother (shipping from China):** 
 
-* Type-C: https://www.aliexpress.com/item/1005005951330078.html
+* Type-C: https://www.aliexpress.us/item/3256806544396556.html
 * Micro-USB: Coming soon
 
 **For sale with KSEC Worldwide (shipping from United Kingdom):**
