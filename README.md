@@ -14,15 +14,17 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 
 [![ko-fi](https://www.ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/E1E614OA5)
 
-**For sale with April Brother (shipping from China):** 
+**Available with April Brother (shipping from China):** 
 
-* Type-C: https://www.aliexpress.us/item/3256806544396556.html
-* Micro-USB: Coming soon
+* https://www.aliexpress.us/item/3256806544396556.html
 
-**For sale with KSEC Worldwide (shipping from United Kingdom):**
+**Available with SAPSAN Cybersec & Military (shipping from EU, Poland):**
 
-* Type-C: https://labs.ksec.co.uk/product/evil-crow-cable-pro-usb-c/
-* Micro-USB: Coming soon
+* https://sapsan-sklep.pl/en/products/evil-crow-cable-pro-badusb
+
+**Available with KSEC Worldwide (shipping from United Kingdom):**
+
+* https://labs.ksec.co.uk/product/evil-crow-cable-pro-usb-c/
 
 **Summary:**
 1. Disclaimer
