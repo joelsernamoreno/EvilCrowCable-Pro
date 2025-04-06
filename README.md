@@ -26,6 +26,10 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 
 * https://labs.ksec.co.uk/product/evil-crow-cable-pro-usb-c/
 
+**Available with Tienda Espía (shipping from Mexico):**
+
+* https://tiendaespia.com.mx/producto/evil-crow-cable-pro-badusb-keylogger/
+
 **Summary:**
 1. Disclaimer
 2. Introduction
