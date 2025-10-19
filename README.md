@@ -45,17 +45,10 @@ You can invite me for a coffee to further develop Low-Cost hacking devices. If y
 	* Data exfiltration
 	* Data exfiltration viewlog
 	* Data exfiltration deletelog
-	* Keystroke Reflection
-	* Keystroke Reflection viewlog
-	* Keystroke Reflection deletelog
-	* USB Host Mouse
 	* Format FS
 5. Keylogger
 	* With adapter
 	* Weaponize a keyboard
-6. Demo
-	* Install and Use
-	* Bypass interface whitelist
 
 ![EvilCrowCablePro](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/evilcrowcablepro.jpeg)
 
@@ -79,11 +72,11 @@ Evil Crow Cable Pro is a BadUSB and Hardware Keylogger device based on RP2040 mi
 
 ## Basic requirements
 
-1. Download and Install Arduino IDE 1.8.19 (Legacy IDE 1.8.X): https://www.arduino.cc/en/main/software
+1. Download and Install Arduino IDE 2.3.6: https://www.arduino.cc/en/main/software
 2. Download Evil Crow Cable Pro repository: git clone https://github.com/joelsernamoreno/EvilCrowCable-Pro.git
 3. Open Arduino IDE.
 4. Go to File - Preferences. Locate the field "Additional Board Manager URLs:" Add "https://github.com/earlephilhower/arduino-pico/releases/download/global/package_rp2040_index.json" without quotes. Click "Ok".
-5. Select Tools - Board - Boards Manager. Search for "rp2040". Install "Raspberry Pi Pico/RP2040 version 3.3.0 by Earle F. Philhower". Click "Close".
+5. Select Tools - Board - Boards Manager. Search for "rp2040". Install "Raspberry Pi Pico/RP2040 version 5.4.0 by Earle F. Philhower". Click "Close".
 6. Go to EvilCrowCable-Pro/libraries directory and unzip all libraries in Arduino libraries directory.
 7. Open firmware.ino in Arduino IDE.
 8. Select Tools:
@@ -147,10 +140,6 @@ You can configure the Keylogger and BadUSB from the config.h file:
 * #define EXFIL_DELETELOG (true or false): Set EXFIL_DELETELOG true to delete log.
 * #define KEYLOGGER_VIEWLOG (true or false): Set KEYLOGGER_VIEWLOG true to view the keylogger log (serial monitor).
 * #define KEYLOGGER_DELETELOG (true or false): Set KEYLOGGER_DELETELOG true to delete log.
-* #define KEYSTROKE_REFLECTION (true or false): Set KEYSTROKE_REFLECTION true to Keystroke Reflection attack.
-* #define REFLECTION_VIEWLOG (true or false): Set REFLECTION_VIEWLOG true to view the data exfil log (serial monitor).
-* #define REFLECTION_DELETELOG (true or false): Set REFLECTION_DELETELOG true to delete log.
-* #define USBHOST_MOUSE (true or false): Set USBHOST_MOUSE true to enable USB Host Mouse.
 * #define FORMATFS (true or false): Set FORMATFS true to format FS.
 
 ![Config](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/config.png)
@@ -207,73 +196,6 @@ Configure #define EXFIL_DELETELOG true in config.h. Flash the firmware in Evil C
 
 ![ExfilDelete](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/exfildeletelog.png)
 
-## Keystroke Reflection
-
-Keystroke Reflection is a new side-channel exfiltration technique developed by Hak5.
-
-**Paper:** https://cdn.shopify.com/s/files/1/0068/2142/files/hak5-whitepaper-keystroke-reflection.pdf?v=1659317977
-
-Evil Crow Cable Pro features a USB HID OUT endpoint which may accept control codes for the purposes of toggling the lock key LED indicators.
-
-By taking advantage of this architecture, the Evil Crow Cable Pro may glean sensitive data by means of Keystroke Reflection, using the lock keys as an exfiltration pathway.
-
-The Keystroke Reflection attack consists of two phases. In the first phase the data of interest, or "loot", is gathered from the target and encoded as lock keystrokes for reflection.
-
-In the second phase, the Evil Crow Cable Pro enters Exfil Mode where it will act as a control code listener on the HID OUT endpoint. Then, the target reflects the encoded lock keystrokes.
-
-Configure Keystroke Reflection in Evil Crow Cable Pro:
-
-1. Edit firmware.ino and uncomment the following line:
-
-![Reflection1](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection1.png)
-
-2. Edit firmware.ino and uncomment the following lines:
-
-![Reflection2](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection2.png)
-
-3. Edit config.h and set KEYSTROKE_REFLECTION to true:
-
-![Reflection3](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection3.png)
-
-4. Edit payload.h and use Reflection:
-
-![Reflection4](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection4.png)
-
-5. Flash the firmware and connect the Evil Crow Cable Pro to a Windows target
-
-## Keystroke Reflection viewlog
-
-Configure #define REFLECTION_VIEWLOG true in config.h. Flash the firmware in Evil Crow Cable Pro, open serial monitor and wait 10 seconds. 
-
-![Reflection5](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection5.png)
-
-## Keystroke Reflection deletelog
-
-Configure #define REFLECTION_DELETELOG true in config.h. Flash the firmware in Evil Crow Cable Pro, open serial monitor and wait 5 seconds.
-
-![Reflection6](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/reflection6.png)
-
-## USB Host Mouse
-
-Evil Crow Cable Pro can function as a USB Host Mouse.
-
-1. Edit the USBCrowKeyboard.cpp file of the USBCrowKeyboard library and uncomment the following line:
-
-![MouseLibrary](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/mouse-init.png)
-
-2. Configure #define USBHOST_MOUSE true in config.h. **NOTE:** Configure #define KEYLOGGER false. Flash the firmware in Evil Crow Cable Pro
-
-![USBHostMouse](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/mouse-usbhost.png)
-
-3. Additionally, you can use a mouse click to execute the payload:
-
-* Configure PAYLOAD_RUN_CLICK = "NONE"; to not execute the payload
-* Configure PAYLOAD_RUN_CLICK = "MOUSE_BUTTON_LEFT"; to execute the payload with the left mouse click
-* Configure PAYLOAD_RUN_CLICK = "MOUSE_BUTTON_RIGHT"; to execute the payload with the right mouse click
-* Configure PAYLOAD_RUN_CLICK = "MOUSE_BUTTON_MIDDLE"; to execute the payload with the middle mouse click
-
-![MouseConfig](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/mouse-config.png)
-
 ## Format FS
 
 1. Open firmware.ino and set #define FORMATFS true. Flash the firmware and wait 10 seconds.
@@ -310,17 +232,3 @@ You can use an adapter:
 4. Close the keyboard
 
 ![Keyboard](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/keyboard.jpeg)
-
-# Demo
-
-Evil Crow Cable Pro - Install and Use: 
-
-[![Evil Crow Cable Pro - Install and Use](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/demo.png)](https://www.youtube.com/watch?v=VTjJ4ayRw1Q)
-
-Here the Video: [Demo Video](https://www.youtube.com/watch?v=VTjJ4ayRw1Q)
-
-Evil Crow Cable Pro - Bypass interface whitelist:
-
-[![Evil Crow Cable Pro - Bypass interface whitelist](https://github.com/joelsernamoreno/EvilCrowCable-Pro/blob/main/images/demo2.png)](https://www.youtube.com/watch?v=sc4aZd3XP70)
-
-Here the Video: [Demo Video 2](https://www.youtube.com/watch?v=sc4aZd3XP70)

@@ -58,7 +58,7 @@ void CommandAtRunBarGnome(char *SomeCommand){
 /********************************************************************
  * Opens spotlight and executes the command. - Adam Baldwin
  ********************************************************************/
-void CommandAtRunBarOSX(char *SomeCommand){
+void CommandAtRunBarOSX(const char *SomeCommand){
   Keyboard.press(KEY_LEFT_GUI);
   Keyboard.press(' ');
   delay(100);

